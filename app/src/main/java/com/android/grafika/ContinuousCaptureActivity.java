@@ -20,6 +20,7 @@ import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
 import android.opengl.GLES20;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.NonNull;
@@ -55,6 +56,10 @@ import java.lang.ref.WeakReference;
  * notified.  That can happen on an arbitrary thread, so we use it to send a message
  * through our Handler.  That causes us to render the new frame to the display and to
  * our video encoder.
+ * <p>
+ * <p>
+ * 需要注意这个demo没有申请存储权限，需要手动打开
+ * 这个demo从一开始进入就开始录制，点击capture的时候保存文件，只保留后面7s
  */
 public class ContinuousCaptureActivity extends Activity implements SurfaceHolder.Callback,
         SurfaceTexture.OnFrameAvailableListener {
@@ -151,7 +156,7 @@ public class ContinuousCaptureActivity extends Activity implements SurfaceHolder
                 }
                 case MSG_BUFFER_STATUS: {
                     long duration = (((long) msg.arg1) << 32) |
-                                    (((long) msg.arg2) & 0xffffffffL);
+                            (((long) msg.arg2) & 0xffffffffL);
                     activity.updateBufferStatus(duration);
                     break;
                 }
@@ -173,7 +178,7 @@ public class ContinuousCaptureActivity extends Activity implements SurfaceHolder
         mHandler = new MainHandler(this);
         mHandler.sendEmptyMessageDelayed(MainHandler.MSG_BLINK_TEXT, 1500);
 
-        mOutputFile = new File(getFilesDir(), "continuous-capture.mp4");
+        mOutputFile = new File(Environment.getExternalStorageDirectory().getPath() + "/continuous-capture.mp4");
         mSecondsOfVideo = 0.0f;
         updateControls();
     }
@@ -184,7 +189,7 @@ public class ContinuousCaptureActivity extends Activity implements SurfaceHolder
 
         if (!PermissionHelper.hasCameraPermission(this)) {
             PermissionHelper.requestCameraPermission(this, false);
-        } else  {
+        } else {
             if (mCamera == null) {
                 // Ideally, the frames from the camera are at the same resolution as the input to
                 // the video encoder so we don't have to scale.
@@ -274,12 +279,12 @@ public class ContinuousCaptureActivity extends Activity implements SurfaceHolder
 
         AspectFrameLayout layout = (AspectFrameLayout) findViewById(R.id.continuousCapture_afl);
 
-        Display display = ((WindowManager)getSystemService(WINDOW_SERVICE)).getDefaultDisplay();
+        Display display = ((WindowManager) getSystemService(WINDOW_SERVICE)).getDefaultDisplay();
 
-        if(display.getRotation() == Surface.ROTATION_0) {
+        if (display.getRotation() == Surface.ROTATION_0) {
             mCamera.setDisplayOrientation(90);
             layout.setAspectRatio((double) cameraPreviewSize.height / cameraPreviewSize.width);
-        } else if(display.getRotation() == Surface.ROTATION_270) {
+        } else if (display.getRotation() == Surface.ROTATION_270) {
             layout.setAspectRatio((double) cameraPreviewSize.height / cameraPreviewSize.width);
             mCamera.setDisplayOrientation(180);
         } else {
@@ -503,9 +508,15 @@ public class ContinuousCaptureActivity extends Activity implements SurfaceHolder
         // We "draw" with the scissor rect and clear calls.  Note this uses window coordinates.
         int val = frameNum % 3;
         switch (val) {
-            case 0:  GLES20.glClearColor(1.0f, 0.0f, 0.0f, 1.0f);   break;
-            case 1:  GLES20.glClearColor(0.0f, 1.0f, 0.0f, 1.0f);   break;
-            case 2:  GLES20.glClearColor(0.0f, 0.0f, 1.0f, 1.0f);   break;
+            case 0:
+                GLES20.glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
+                break;
+            case 1:
+                GLES20.glClearColor(0.0f, 1.0f, 0.0f, 1.0f);
+                break;
+            case 2:
+                GLES20.glClearColor(0.0f, 0.0f, 1.0f, 1.0f);
+                break;
         }
 
         int xpos = (int) (width * ((frameNum % 100) / 100.0f));
