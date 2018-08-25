@@ -20,6 +20,7 @@ import android.os.Bundle;
 import android.app.Activity;
 import android.graphics.Matrix;
 import android.graphics.SurfaceTexture;
+import android.os.Environment;
 import android.util.Log;
 import android.view.Surface;
 import android.view.TextureView;
@@ -44,7 +45,7 @@ import java.io.IOException;
  * rather than a custom layout.
  * <p>
  * TODO: investigate crash when screen is rotated while movie is playing (need
- *       to have onPause() wait for playback to stop)
+ * to have onPause() wait for playback to stop)
  */
 public class PlayMovieActivity extends Activity implements OnItemSelectedListener,
         TextureView.SurfaceTextureListener, MoviePlayer.PlayerFeedback {
@@ -71,7 +72,7 @@ public class PlayMovieActivity extends Activity implements OnItemSelectedListene
         Spinner spinner = (Spinner) findViewById(R.id.playMovieFile_spinner);
         // Need to create one of these fancy ArrayAdapter thingies, and specify the generic layout
         // for the widget itself.
-        mMovieFiles = MiscUtils.getFiles(getFilesDir(), "*.mp4");
+        mMovieFiles = MiscUtils.getFiles(PathUtil.getDir(), "*.mp4");
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
                 android.R.layout.simple_spinner_item, mMovieFiles);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -143,7 +144,9 @@ public class PlayMovieActivity extends Activity implements OnItemSelectedListene
         Log.d(TAG, "onItemSelected: " + mSelectedMovie + " '" + mMovieFiles[mSelectedMovie] + "'");
     }
 
-    @Override public void onNothingSelected(AdapterView<?> parent) {}
+    @Override
+    public void onNothingSelected(AdapterView<?> parent) {
+    }
 
     /**
      * onClick handler for "play"/"stop" button.
@@ -171,7 +174,7 @@ public class PlayMovieActivity extends Activity implements OnItemSelectedListene
             Surface surface = new Surface(st);
             MoviePlayer player = null;
             try {
-                 player = new MoviePlayer(
+                player = new MoviePlayer(
                         new File(getFilesDir(), mMovieFiles[mSelectedMovie]), surface, callback);
             } catch (IOException ioe) {
                 Log.e(TAG, "Unable to play movie", ioe);

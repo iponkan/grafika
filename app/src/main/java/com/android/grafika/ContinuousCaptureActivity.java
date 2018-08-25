@@ -178,7 +178,7 @@ public class ContinuousCaptureActivity extends Activity implements SurfaceHolder
         mHandler = new MainHandler(this);
         mHandler.sendEmptyMessageDelayed(MainHandler.MSG_BLINK_TEXT, 1500);
 
-        mOutputFile = new File(Environment.getExternalStorageDirectory().getPath() + "/continuous-capture.mp4");
+        mOutputFile = new File(PathUtil.getDir(), "continuous-capture.mp4");
         mSecondsOfVideo = 0.0f;
         updateControls();
     }
