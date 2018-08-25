@@ -18,7 +18,6 @@ package com.android.grafika;
 
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.NonNull;
@@ -76,6 +75,8 @@ import java.lang.ref.WeakReference;
  * updateTexImage().  The renderer thread is thus at the center of a multi-thread nexus,
  * which is a bit awkward since it's the thread we have the least control over.
  * </ol>
+ *
+ * 这里说EGLContext必须和mediacodec共享？
  * <p>
  * GLSurfaceView is fairly painful here.  Ideally we'd create the video encoder, create
  * an EGLContext for it, and pass that into GLSurfaceView to share.  The API doesn't allow
@@ -116,6 +117,8 @@ import java.lang.ref.WeakReference;
  * "paused" message and hold on that in the recording, or leave the Camera running so it
  * continues to generate preview frames while the Activity is paused.)  The video encoder object
  * is managed as a static property of the Activity.
+ * <p>
+ * 发现这里录制的原始的视频，这里并没有持有录制器，录制器在Render中控制
  */
 public class CameraCaptureActivity extends Activity
         implements SurfaceTexture.OnFrameAvailableListener, OnItemSelectedListener {

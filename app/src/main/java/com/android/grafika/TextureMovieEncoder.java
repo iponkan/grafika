@@ -325,6 +325,8 @@ public class TextureMovieEncoder implements Runnable {
     private void handleFrameAvailable(float[] transform, long timestampNanos) {
         if (VERBOSE) Log.d(TAG, "handleFrameAvailable tr=" + transform);
         mVideoEncoder.drainEncoder(false);
+        // TODO: 2018/8/25 需要在这里加上滤镜，这里MediaCodec输入Surface的类型也是External类型的
+//        mFullScreen.changeProgram(new Texture2dProgram(Texture2dProgram.ProgramType.TEXTURE_EXT_BW));
         mFullScreen.drawFrame(mTextureId, transform);
 
         drawBox(mFrameNum++);
