@@ -783,7 +783,6 @@ public class RecordFBOActivity extends Activity implements SurfaceHolder.Callbac
             // Record at 1280x720, regardless of the window dimensions.  The encoder may
             // explode if given "strange" dimensions, e.g. a width that is not a multiple
             // of 16.  We can box it as needed to preserve dimensions.
-            final int BIT_RATE = 4000000;   // 4Mbps
             final int VIDEO_WIDTH = 1280;
             final int VIDEO_HEIGHT = 720;
             int windowWidth = mWindowSurface.getWidth();
@@ -808,8 +807,7 @@ public class RecordFBOActivity extends Activity implements SurfaceHolder.Callbac
 
             VideoEncoderCore encoderCore;
             try {
-                encoderCore = new VideoEncoderCore(VIDEO_WIDTH, VIDEO_HEIGHT,
-                        BIT_RATE, mOutputFile);
+                encoderCore = new VideoEncoderCore(VIDEO_WIDTH, VIDEO_HEIGHT, mOutputFile);
             } catch (IOException ioe) {
                 throw new RuntimeException(ioe);
             }

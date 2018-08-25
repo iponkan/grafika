@@ -22,10 +22,8 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.NonNull;
 import android.util.Log;
-import android.view.Display;
 import android.view.Surface;
 import android.view.View;
-import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
@@ -36,6 +34,8 @@ import android.app.Activity;
 import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
 import android.widget.Toast;
+
+import com.android.grafika.util.CommUtil;
 
 import java.io.File;
 import java.io.IOException;
@@ -75,7 +75,7 @@ import java.lang.ref.WeakReference;
  * updateTexImage().  The renderer thread is thus at the center of a multi-thread nexus,
  * which is a bit awkward since it's the thread we have the least control over.
  * </ol>
- *
+ * <p>
  * 这里说EGLContext必须和mediacodec共享？
  * <p>
  * GLSurfaceView is fairly painful here.  Ideally we'd create the video encoder, create
@@ -143,6 +143,7 @@ public class CameraCaptureActivity extends Activity
 
     // this is static so it survives activity restarts
     private static TextureMovieEncoder sVideoEncoder = new TextureMovieEncoder();
+    private int mRotation = Surface.ROTATION_90;//默认为竖直方向
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -198,7 +199,12 @@ public class CameraCaptureActivity extends Activity
         mGLView.queueEvent(new Runnable() {
             @Override
             public void run() {
-                mRenderer.setCameraPreviewSize(mCameraPreviewWidth, mCameraPreviewHeight);
+                if (mRotation == Surface.ROTATION_90 | mRotation == Surface.ROTATION_270) {
+                    mRenderer.setCameraPreviewSize(mCameraPreviewWidth, mCameraPreviewHeight);
+                } else {
+                    mRenderer.setCameraPreviewSize(mCameraPreviewHeight, mCameraPreviewWidth);
+                }
+
             }
         });
         Log.d(TAG, "onResume complete: " + this);
@@ -320,12 +326,12 @@ public class CameraCaptureActivity extends Activity
 
         AspectFrameLayout layout = (AspectFrameLayout) findViewById(R.id.cameraPreview_afl);
 
-        Display display = ((WindowManager) getSystemService(WINDOW_SERVICE)).getDefaultDisplay();
+        mRotation = CommUtil.getRotation(this);
 
-        if (display.getRotation() == Surface.ROTATION_0) {
+        if (mRotation == Surface.ROTATION_0) {
             mCamera.setDisplayOrientation(90);
             layout.setAspectRatio((double) mCameraPreviewHeight / mCameraPreviewWidth);
-        } else if (display.getRotation() == Surface.ROTATION_270) {
+        } else if (mRotation == Surface.ROTATION_270) {
             layout.setAspectRatio((double) mCameraPreviewHeight / mCameraPreviewWidth);
             mCamera.setDisplayOrientation(180);
         } else {

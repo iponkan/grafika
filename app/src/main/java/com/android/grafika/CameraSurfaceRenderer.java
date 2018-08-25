@@ -46,7 +46,7 @@ class CameraSurfaceRenderer implements GLSurfaceView.Renderer {
 
     // width/height of the incoming camera preview frames
     private boolean mIncomingSizeUpdated;
-    private int mIncomingWidth;
+    private int mIncomingWidth;// 这两个尺寸对显示并没有造成影响
     private int mIncomingHeight;
 
     private int mCurrentFilter;
@@ -56,12 +56,13 @@ class CameraSurfaceRenderer implements GLSurfaceView.Renderer {
     /**
      * Constructs CameraSurfaceRenderer.
      * <p>
+     *
      * @param cameraHandler Handler for communicating with UI thread
-     * @param movieEncoder video encoder object
-     * @param outputFile output file for encoded video; forwarded to movieEncoder
+     * @param movieEncoder  video encoder object
+     * @param outputFile    output file for encoded video; forwarded to movieEncoder
      */
     public CameraSurfaceRenderer(CameraCaptureActivity.CameraHandler cameraHandler,
-            TextureMovieEncoder movieEncoder, File outputFile) {
+                                 TextureMovieEncoder movieEncoder, File outputFile) {
         mCameraHandler = cameraHandler;
         mVideoEncoder = movieEncoder;
         mOutputFile = outputFile;
@@ -134,31 +135,31 @@ class CameraSurfaceRenderer implements GLSurfaceView.Renderer {
                 break;
             case CameraCaptureActivity.FILTER_BLUR:
                 programType = Texture2dProgram.ProgramType.TEXTURE_EXT_FILT;
-                kernel = new float[] {
-                        1f/16f, 2f/16f, 1f/16f,
-                        2f/16f, 4f/16f, 2f/16f,
-                        1f/16f, 2f/16f, 1f/16f };
+                kernel = new float[]{
+                        1f / 16f, 2f / 16f, 1f / 16f,
+                        2f / 16f, 4f / 16f, 2f / 16f,
+                        1f / 16f, 2f / 16f, 1f / 16f};
                 break;
             case CameraCaptureActivity.FILTER_SHARPEN:
                 programType = Texture2dProgram.ProgramType.TEXTURE_EXT_FILT;
-                kernel = new float[] {
+                kernel = new float[]{
                         0f, -1f, 0f,
                         -1f, 5f, -1f,
-                        0f, -1f, 0f };
+                        0f, -1f, 0f};
                 break;
             case CameraCaptureActivity.FILTER_EDGE_DETECT:
                 programType = Texture2dProgram.ProgramType.TEXTURE_EXT_FILT;
-                kernel = new float[] {
+                kernel = new float[]{
                         -1f, -1f, -1f,
                         -1f, 8f, -1f,
-                        -1f, -1f, -1f };
+                        -1f, -1f, -1f};
                 break;
             case CameraCaptureActivity.FILTER_EMBOSS:
                 programType = Texture2dProgram.ProgramType.TEXTURE_EXT_FILT;
-                kernel = new float[] {
+                kernel = new float[]{
                         2f, 0f, 0f,
                         0f, -1f, 0f,
-                        0f, 0f, -1f };
+                        0f, 0f, -1f};
                 colorAdj = 0.5f;
                 break;
             default:
@@ -190,6 +191,7 @@ class CameraSurfaceRenderer implements GLSurfaceView.Renderer {
      */
     public void setCameraPreviewSize(int width, int height) {
         Log.d(TAG, "setCameraPreviewSize");
+        // 这是相机预览的宽高比，实际上在竖直方向上，要录制的宽高是有个90度的旋转的
         mIncomingWidth = width;
         mIncomingHeight = height;
         mIncomingSizeUpdated = true;
@@ -249,8 +251,9 @@ class CameraSurfaceRenderer implements GLSurfaceView.Renderer {
                 case RECORDING_OFF:
                     Log.d(TAG, "START recording");
                     // start recording
+                    // TODO: 2018/8/25 这里有一质量的问题，这里的录制宽高取的是相机预览的宽高，所以质量比较底
                     mVideoEncoder.startRecording(new TextureMovieEncoder.EncoderConfig(
-                            mOutputFile, 640, 480, 1000000, EGL14.eglGetCurrentContext()));
+                            mOutputFile, mIncomingWidth, mIncomingHeight, EGL14.eglGetCurrentContext()));
                     mRecordingStatus = RECORDING_ON;
                     break;
                 case RECORDING_RESUMED:

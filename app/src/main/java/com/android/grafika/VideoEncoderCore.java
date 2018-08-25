@@ -45,6 +45,7 @@ public class VideoEncoderCore {
     private static final String MIME_TYPE = "video/avc";    // H.264 Advanced Video Coding
     private static final int FRAME_RATE = 30;               // 30fps
     private static final int IFRAME_INTERVAL = 5;           // 5 seconds between I-frames
+    private static final int BIT_RATE = 4000000;
 
     private Surface mInputSurface;
     private MediaMuxer mMuxer;
@@ -57,7 +58,7 @@ public class VideoEncoderCore {
     /**
      * Configures encoder and muxer state, and prepares the input Surface.
      */
-    public VideoEncoderCore(int width, int height, int bitRate, File outputFile)
+    public VideoEncoderCore(int width, int height, File outputFile)
             throws IOException {
         mBufferInfo = new MediaCodec.BufferInfo();
 
@@ -67,8 +68,11 @@ public class VideoEncoderCore {
         // configure() call to throw an unhelpful exception.
         format.setInteger(MediaFormat.KEY_COLOR_FORMAT,
                 MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface);
-        format.setInteger(MediaFormat.KEY_BIT_RATE, bitRate);
+
+        //比特率决定视频的质量
+        format.setInteger(MediaFormat.KEY_BIT_RATE, BIT_RATE);
         format.setInteger(MediaFormat.KEY_FRAME_RATE, FRAME_RATE);
+
         format.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, IFRAME_INTERVAL);
         if (VERBOSE) Log.d(TAG, "format: " + format);
 

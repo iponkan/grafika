@@ -99,21 +99,19 @@ public class TextureMovieEncoder implements Runnable {
         final File mOutputFile;
         final int mWidth;
         final int mHeight;
-        final int mBitRate;
         final EGLContext mEglContext;
 
-        public EncoderConfig(File outputFile, int width, int height, int bitRate,
+        public EncoderConfig(File outputFile, int width, int height,
                 EGLContext sharedEglContext) {
             mOutputFile = outputFile;
             mWidth = width;
             mHeight = height;
-            mBitRate = bitRate;
             mEglContext = sharedEglContext;
         }
 
         @Override
         public String toString() {
-            return "EncoderConfig: " + mWidth + "x" + mHeight + " @" + mBitRate +
+            return "EncoderConfig: " + mWidth + "x" + mHeight +
                     " to '" + mOutputFile.toString() + "' ctxt=" + mEglContext;
         }
     }
@@ -309,7 +307,7 @@ public class TextureMovieEncoder implements Runnable {
     private void handleStartRecording(EncoderConfig config) {
         Log.d(TAG, "handleStartRecording " + config);
         mFrameNum = 0;
-        prepareEncoder(config.mEglContext, config.mWidth, config.mHeight, config.mBitRate,
+        prepareEncoder(config.mEglContext, config.mWidth, config.mHeight,
                 config.mOutputFile);
     }
 
@@ -377,10 +375,10 @@ public class TextureMovieEncoder implements Runnable {
                 new Texture2dProgram(Texture2dProgram.ProgramType.TEXTURE_EXT));
     }
 
-    private void prepareEncoder(EGLContext sharedContext, int width, int height, int bitRate,
+    private void prepareEncoder(EGLContext sharedContext, int width, int height,
             File outputFile) {
         try {
-            mVideoEncoder = new VideoEncoderCore(width, height, bitRate, outputFile);
+            mVideoEncoder = new VideoEncoderCore(width, height, outputFile);
         } catch (IOException ioe) {
             throw new RuntimeException(ioe);
         }
