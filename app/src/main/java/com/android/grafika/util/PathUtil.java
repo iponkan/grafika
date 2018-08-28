@@ -1,4 +1,4 @@
-package com.android.grafika;
+package com.android.grafika.util;
 
 import android.os.Environment;
 

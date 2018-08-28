@@ -20,7 +20,6 @@ import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
 import android.opengl.GLES20;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.NonNull;
@@ -40,6 +39,7 @@ import com.android.grafika.gles.EglCore;
 import com.android.grafika.gles.FullFrameRect;
 import com.android.grafika.gles.Texture2dProgram;
 import com.android.grafika.gles.WindowSurface;
+import com.android.grafika.util.PathUtil;
 
 import java.io.File;
 import java.io.IOException;

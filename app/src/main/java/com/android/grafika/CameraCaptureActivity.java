@@ -36,6 +36,7 @@ import android.hardware.Camera;
 import android.widget.Toast;
 
 import com.android.grafika.util.CommUtil;
+import com.android.grafika.util.PathUtil;
 
 import java.io.File;
 import java.io.IOException;
