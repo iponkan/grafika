@@ -293,7 +293,7 @@ class CameraSurfaceRenderer implements GLSurfaceView.Renderer {
 
         // Tell the video encoder thread that a new frame is available.
         // This will be ignored if we're not actually recording.
-        mVideoEncoder.frameAvailable(mSurfaceTexture);
+        mVideoEncoder.frameAvailable(mSurfaceTexture);//每一帧都传给录制器
 
         if (mIncomingWidth <= 0 || mIncomingHeight <= 0) {
             // Texture size isn't set yet.  This is only used for the filters, but to be

@@ -53,9 +53,9 @@ import java.lang.ref.WeakReference;
  * <li>call TextureMovieEncoder#startRecording() with the config
  * <li>call TextureMovieEncoder#setTextureId() with the texture object that receives frames
  * <li>for each frame, after latching it with SurfaceTexture#updateTexImage(),
- *     call TextureMovieEncoder#frameAvailable().
+ * call TextureMovieEncoder#frameAvailable().
  * </ul>
- *
+ * <p>
  * TODO: tweak the API (esp. textureId) so it's less awkward for simple use cases.
  */
 public class TextureMovieEncoder implements Runnable {
@@ -80,8 +80,9 @@ public class TextureMovieEncoder implements Runnable {
     // ----- accessed by multiple threads -----
     private volatile EncoderHandler mHandler;
 
-    private Object mReadyFence = new Object();      // guards ready/running
-    private boolean mReady;
+    private Object mReadyFence = new Object();      // guards ready/running，这里好像只用来实现阻塞
+    private boolean mReady;// 因为这里用了HandlerThread，这个标志位来确保后面的东西都在Looper跑起来，eventhandler可用
+    // 这里采用了wait,notify 的阻塞方式
     private boolean mRunning;
 
 
@@ -93,7 +94,7 @@ public class TextureMovieEncoder implements Runnable {
      * under us).
      * <p>
      * TODO: make frame rate and iframe interval configurable?  Maybe use builder pattern
-     *       with reasonable defaults for those and bit rate.
+     * with reasonable defaults for those and bit rate.
      */
     public static class EncoderConfig {
         final File mOutputFile;
@@ -102,7 +103,7 @@ public class TextureMovieEncoder implements Runnable {
         final EGLContext mEglContext;
 
         public EncoderConfig(File outputFile, int width, int height,
-                EGLContext sharedEglContext) {
+                             EGLContext sharedEglContext) {
             mOutputFile = outputFile;
             mWidth = width;
             mHeight = height;
@@ -232,6 +233,7 @@ public class TextureMovieEncoder implements Runnable {
     /**
      * Encoder thread entry point.  Establishes Looper/Handler and waits for messages.
      * <p>
+     *
      * @see java.lang.Thread#run()
      */
     @Override
@@ -317,12 +319,13 @@ public class TextureMovieEncoder implements Runnable {
      * The texture is rendered onto the encoder's input surface, along with a moving
      * box (just because we can).
      * <p>
-     * @param transform The texture transform, from SurfaceTexture.
+     *
+     * @param transform      The texture transform, from SurfaceTexture.
      * @param timestampNanos The frame's timestamp, from SurfaceTexture.
      */
     private void handleFrameAvailable(float[] transform, long timestampNanos) {
         if (VERBOSE) Log.d(TAG, "handleFrameAvailable tr=" + transform);
-        mVideoEncoder.drainEncoder(false);
+        mVideoEncoder.drainEncoder(false);//每一帧触发mediaCodec和muxer
         // TODO: 2018/8/25 需要在这里加上滤镜，这里MediaCodec输入Surface的类型也是External类型的
 //        mFullScreen.changeProgram(new Texture2dProgram(Texture2dProgram.ProgramType.TEXTURE_EXT_BW));
         mFullScreen.drawFrame(mTextureId, transform);
@@ -376,7 +379,7 @@ public class TextureMovieEncoder implements Runnable {
     }
 
     private void prepareEncoder(EGLContext sharedContext, int width, int height,
-            File outputFile) {
+                                File outputFile) {
         try {
             mVideoEncoder = new VideoEncoderCore(width, height, outputFile);
         } catch (IOException ioe) {

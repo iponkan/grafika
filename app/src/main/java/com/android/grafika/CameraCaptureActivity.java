@@ -118,7 +118,7 @@ import java.lang.ref.WeakReference;
  * continues to generate preview frames while the Activity is paused.)  The video encoder object
  * is managed as a static property of the Activity.
  * <p>
- * 发现这里录制的原始的视频，这里并没有持有录制器，录制器在Render中控制
+ * 发现这里录制的原始的视频，这里虽然持有录制器，但录制器在Render中控制
  */
 public class CameraCaptureActivity extends Activity
         implements SurfaceTexture.OnFrameAvailableListener, OnItemSelectedListener {
@@ -357,7 +357,7 @@ public class CameraCaptureActivity extends Activity
      */
     public void clickToggleRecording(@SuppressWarnings("unused") View unused) {
         mRecordingEnabled = !mRecordingEnabled;
-        mGLView.queueEvent(new Runnable() {
+        mGLView.queueEvent(new Runnable() {//触发录制，需要在GL线程，因为录制发生在GL线程，需要考虑GL线程状态
             @Override
             public void run() {
                 // notify the renderer that we want to change the encoder's state

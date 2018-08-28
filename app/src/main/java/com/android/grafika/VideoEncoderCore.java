@@ -36,23 +36,26 @@ import java.nio.ByteBuffer;
  * <p>
  * This class is not thread-safe, with one exception: it is valid to use the input surface
  * on one thread, and drain the output on a different thread.
+ * 意思是输入输出不是同一个线程也是有效的？
+ * <p>
+ *
+ * 最低支持api-18
  */
 public class VideoEncoderCore {
-    private static final String TAG = MainActivity.TAG;
+    private static final String TAG = "VideoEncoderCore";
     private static final boolean VERBOSE = false;
 
-    // TODO: these ought to be configurable as well
     private static final String MIME_TYPE = "video/avc";    // H.264 Advanced Video Coding
     private static final int FRAME_RATE = 30;               // 30fps
     private static final int IFRAME_INTERVAL = 5;           // 5 seconds between I-frames
-    private static final int BIT_RATE = 4000000;
+    private static final int BIT_RATE = 4000000;            // 4Mbps，这个质量看起来不错
 
     private Surface mInputSurface;
     private MediaMuxer mMuxer;
     private MediaCodec mEncoder;
     private MediaCodec.BufferInfo mBufferInfo;
     private int mTrackIndex;
-    private boolean mMuxerStarted;
+    private boolean mMuxerStarted;// 为什么Muxer要用一个状态控制
 
 
     /**
@@ -131,6 +134,7 @@ public class VideoEncoderCore {
      * <p>
      * We're just using the muxer to get a .mp4 file (instead of a raw H.264 stream).  We're
      * not recording audio.
+     * drain 排水
      */
     public void drainEncoder(boolean endOfStream) {
         final int TIMEOUT_USEC = 10000;
@@ -157,6 +161,7 @@ public class VideoEncoderCore {
             } else if (encoderStatus == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED) {
                 // should happen before receiving buffers, and should only happen once
                 if (mMuxerStarted) {
+                    // TODO: 2018/8/28 //如果有音频。。。。
                     throw new RuntimeException("format changed twice");
                 }
                 MediaFormat newFormat = mEncoder.getOutputFormat();
